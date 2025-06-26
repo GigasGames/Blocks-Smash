@@ -3,15 +3,24 @@
 <head>
   <meta charset="utf-8" />
   <title>Pi Game</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
   <style>
     html, body {
       margin: 0;
       padding: 0;
-      background: black;
       height: 100%;
+      background: black;
       overflow: hidden;
+      touch-action: none;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; bottom: 0; left: 0; right: 0;
+      background: black;
+      z-index: -1;
     }
 
     #unity-container {
@@ -27,12 +36,13 @@
     }
 
     #unity-canvas {
-      width: auto;
-      height: 100%;
-      aspect-ratio: 9 / 16;
-      max-height: 100vh;
-      display: block;
-      background: #000;
+      background: black;
+      width: 100vh;
+      height: 100vw;
+      max-height: 100vw;
+      max-width: 100vh;
+      transform: rotate(90deg);
+      transform-origin: center center;
     }
   </style>
 </head>
@@ -44,20 +54,18 @@
   <script>
     let gameInstance = null;
 
-    // Pi SDK init
     Pi.init({ version: "2.0" });
 
-    // Pi Auth
     function AuthenticateWithPi() {
       const scopes = ['username', 'payments'];
-      Pi.authenticate(scopes, function(payment) {
+      Pi.authenticate(scopes, function (payment) {
         console.log("💰 Pending payment:", payment);
-      }).then(function(auth) {
+      }).then(function (auth) {
         console.log("✅ Pi Auth Success:", auth);
         if (gameInstance) {
           gameInstance.SendMessage('PiBridge', 'OnAuthSuccess', JSON.stringify(auth));
         }
-      }).catch(function(error) {
+      }).catch(function (error) {
         console.error("❌ Pi Auth Failed:", error);
         if (gameInstance) {
           gameInstance.SendMessage('PiBridge', 'OnAuthFailure', error.toString());
@@ -65,16 +73,6 @@
       });
     }
 
-    // Fix Chrome mobile bottom bar height issue
-    function resizeCanvasToViewport() {
-      const canvas = document.getElementById('unity-canvas');
-      canvas.style.height = window.innerHeight + "px";
-    }
-
-    window.addEventListener("load", resizeCanvasToViewport);
-    window.addEventListener("resize", resizeCanvasToViewport);
-
-    // Unity Build Config
     const buildUrl = "Build";
     const loaderUrl = buildUrl + "/Build.loader.js";
     const config = {
