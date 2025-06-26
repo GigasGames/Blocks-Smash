@@ -14,10 +14,9 @@
       overflow: hidden;
     }
     #unity-canvas {
-      width: 100vw;
-      height: 100vh;
       display: block;
       background: #000;
+      touch-action: none;
     }
   </style>
 </head>
@@ -48,6 +47,21 @@
       });
     }
 
+    // Resize canvas based on actual visible viewport
+    function resizeCanvasToWindow() {
+      const canvas = document.getElementById("unity-canvas");
+      const vw = window.visualViewport?.width || window.innerWidth;
+      const vh = window.visualViewport?.height || window.innerHeight;
+      if (canvas) {
+        canvas.style.width = vw + "px";
+        canvas.style.height = vh + "px";
+      }
+    }
+
+    window.addEventListener("load", resizeCanvasToWindow);
+    window.addEventListener("resize", resizeCanvasToWindow);
+    window.visualViewport?.addEventListener("resize", resizeCanvasToWindow);
+
     // Unity loader config
     const buildUrl = "Build";
     const loaderUrl = buildUrl + "/Build.loader.js";
@@ -69,6 +83,7 @@
       createUnityInstance(document.querySelector("#unity-canvas"), config)
         .then(instance => {
           gameInstance = instance;
+          resizeCanvasToWindow(); // Ensure correct size after Unity starts
         })
         .catch(err => {
           alert("Unity Load Error: " + err);
