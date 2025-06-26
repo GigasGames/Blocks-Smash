@@ -20,46 +20,39 @@
       display: block;
       background: #000;
     }
-    #loading-cover {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background: black;
-      color: white;
-      font-family: sans-serif;
-      font-size: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-    }
   </style>
 </head>
 <body>
-  <div id="loading-cover">Loading...</div>
   <canvas id="unity-canvas"></canvas>
-  <script src="Build/UnityLoader.js"></script>
   <script>
-    let gameInstance = null;
-
-    // Load Unity WebGL build
-    createUnityInstance(document.querySelector("#unity-canvas"), {
-      dataUrl: "Build/Build.data",
-      frameworkUrl: "Build/Build.framework.js",
-      codeUrl: "Build/Build.wasm",
+    const buildUrl = "Build";
+    const loaderUrl = buildUrl + "/Build.loader.js";
+    const config = {
+      dataUrl: buildUrl + "/Build.data.unityweb",
+      frameworkUrl: buildUrl + "/Build.framework.js.unityweb",
+      codeUrl: buildUrl + "/Build.wasm.unityweb",
       streamingAssetsUrl: "StreamingAssets",
       companyName: "YourCompany",
       productName: "PiGame",
       productVersion: "1.0.0",
-    }).then(instance => {
-      gameInstance = instance;
-      document.getElementById("loading-cover").style.display = "none";
+    };
 
-      // Initialize Pi SDK
-      Pi.init({ version: "2.0" });
-    });
+    const script = document.createElement("script");
+    script.src = loaderUrl;
+    script.onload = () => {
+      createUnityInstance(document.querySelector("#unity-canvas"), config, (progress) => {
+        console.log(`Loading: ${Math.floor(progress * 100)}%`);
+      }).then((instance) => {
+        gameInstance = instance;
+        Pi.init({ version: "2.0" });
+      }).catch((message) => {
+        alert(message);
+      });
+    };
+    document.body.appendChild(script);
 
-    // Call this from Unity via Application.ExternalCall or SendMessage
+    let gameInstance = null;
+
     function AuthenticateWithPi() {
       const scopes = ['username', 'payments'];
       Pi.authenticate(scopes, function(payment) {
@@ -74,9 +67,6 @@
           gameInstance.SendMessage('PiBridge', 'OnAuthFailure', error.toString());
       });
     }
-
-    // Optional: expose a test button in dev mode
-    // setTimeout(() => AuthenticateWithPi(), 3000); 
   </script>
 </body>
 </html>
