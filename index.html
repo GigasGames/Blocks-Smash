@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <title>Pi Game</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
   <style>
     html, body {
@@ -13,11 +13,12 @@
       height: 100%;
       overflow: hidden;
     }
+
     #unity-canvas {
-      width: 100vw;
-      height: 100vh;
       display: block;
       background: black;
+      width: 100vw;
+      height: 100vh; /* fallback */
     }
   </style>
 </head>
@@ -27,8 +28,10 @@
   <script>
     let gameInstance = null;
 
+    // Pi SDK init
     Pi.init({ version: "2.0" });
 
+    // Pi Auth
     function AuthenticateWithPi() {
       const scopes = ['username', 'payments'];
       Pi.authenticate(scopes, function (payment) {
@@ -46,6 +49,17 @@
       });
     }
 
+    // 🧠 Fix 100vh bug on mobile Chrome
+    function resizeCanvasToSafeHeight() {
+      const canvas = document.getElementById('unity-canvas');
+      canvas.style.height = window.innerHeight + 'px';
+    }
+
+    window.addEventListener('load', resizeCanvasToSafeHeight);
+    window.addEventListener('resize', resizeCanvasToSafeHeight);
+    window.addEventListener('orientationchange', resizeCanvasToSafeHeight);
+
+    // Load Unity
     const buildUrl = "Build";
     const loaderUrl = buildUrl + "/Build.loader.js";
     const config = {
