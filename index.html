@@ -13,23 +13,41 @@
       height: 100%;
       overflow: hidden;
     }
+
+    #unity-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: black;
+    }
+
     #unity-canvas {
+      width: auto;
+      height: 100%;
+      aspect-ratio: 9 / 16;
+      max-height: 100vh;
       display: block;
       background: #000;
-      touch-action: none;
     }
   </style>
 </head>
 <body>
-  <canvas id="unity-canvas"></canvas>
+  <div id="unity-container">
+    <canvas id="unity-canvas"></canvas>
+  </div>
 
   <script>
     let gameInstance = null;
 
-    // Initialize Pi SDK
+    // Pi SDK init
     Pi.init({ version: "2.0" });
 
-    // Authentication function
+    // Pi Auth
     function AuthenticateWithPi() {
       const scopes = ['username', 'payments'];
       Pi.authenticate(scopes, function(payment) {
@@ -47,22 +65,16 @@
       });
     }
 
-    // Resize canvas based on actual visible viewport
-    function resizeCanvasToWindow() {
-      const canvas = document.getElementById("unity-canvas");
-      const vw = window.visualViewport?.width || window.innerWidth;
-      const vh = window.visualViewport?.height || window.innerHeight;
-      if (canvas) {
-        canvas.style.width = vw + "px";
-        canvas.style.height = vh + "px";
-      }
+    // Fix Chrome mobile bottom bar height issue
+    function resizeCanvasToViewport() {
+      const canvas = document.getElementById('unity-canvas');
+      canvas.style.height = window.innerHeight + "px";
     }
 
-    window.addEventListener("load", resizeCanvasToWindow);
-    window.addEventListener("resize", resizeCanvasToWindow);
-    window.visualViewport?.addEventListener("resize", resizeCanvasToWindow);
+    window.addEventListener("load", resizeCanvasToViewport);
+    window.addEventListener("resize", resizeCanvasToViewport);
 
-    // Unity loader config
+    // Unity Build Config
     const buildUrl = "Build";
     const loaderUrl = buildUrl + "/Build.loader.js";
     const config = {
@@ -83,7 +95,6 @@
       createUnityInstance(document.querySelector("#unity-canvas"), config)
         .then(instance => {
           gameInstance = instance;
-          resizeCanvasToWindow(); // Ensure correct size after Unity starts
         })
         .catch(err => {
           alert("Unity Load Error: " + err);
