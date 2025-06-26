@@ -1,9 +1,9 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   <title>Pi Game</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
   <style>
     html, body {
@@ -17,17 +17,22 @@
       width: 100%;
       height: 100%;
       display: block;
+      outline: none;
+      cursor: default;
     }
   </style>
 </head>
 <body>
-  <canvas id="unity-canvas"></canvas>
+  <canvas id="unity-canvas" tabindex="1"></canvas>
 
   <script>
+    // Init Pi SDK
     Pi.init({ version: "2.0" });
 
+    // Unity instance
     let gameInstance = null;
 
+    // Authenticate function (optional)
     function AuthenticateWithPi() {
       const scopes = ['username', 'payments'];
       Pi.authenticate(scopes, function(payment) {
@@ -41,12 +46,12 @@
       });
     }
 
-    const buildUrl = "Build/";
-    const loaderUrl = buildUrl + "Build.loader.js";
+    // Load Unity
+    const loaderUrl = "Build/Build.loader.js";
     const config = {
-      dataUrl: buildUrl + "Build.data.br",
-      frameworkUrl: buildUrl + "Build.framework.js.br",
-      codeUrl: buildUrl + "Build.wasm.br",
+      dataUrl: "Build/Build.data.br",
+      frameworkUrl: "Build/Build.framework.js.br",
+      codeUrl: "Build/Build.wasm.br",
       streamingAssetsUrl: "StreamingAssets",
       companyName: "YourCompany",
       productName: "Pi Game",
