@@ -3,72 +3,55 @@
 <head>
   <meta charset="utf-8">
   <title>Pi Game</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-  <script>
-    Pi.init({ version: "2.0" });
-  </script>
   <style>
     html, body {
       margin: 0;
       padding: 0;
       background: black;
       height: 100%;
-      width: 100%;
       overflow: hidden;
-      touch-action: none;
     }
-
     canvas {
       display: block;
-      width: 100vw;
-      height: 100vh;
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
-      background-color: black;
+      width: 100%;
+      height: 100%;
     }
 
-    /* Message for users in landscape mode */
-    @media screen and (orientation: landscape) {
+    /* Force portrait lock styling */
+    @media screen and (orientation:landscape) {
       body::before {
-        content: "Please rotate your device";
+        content: "🔁 Please rotate your device ⤴";
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2em;
         color: white;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        font-family: sans-serif;
-        font-size: 1.5rem;
-        z-index: 1000;
+        background: black;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 9999;
         text-align: center;
+        padding: 2rem;
       }
-
       #unity-canvas {
-        display: none;
+        display: none !important;
       }
     }
   </style>
 </head>
 <body>
   <canvas id="unity-canvas"></canvas>
-
   <script>
-    // Resize canvas on load/resize to fix Chrome mobile issues
-    function resizeCanvasToWindow() {
-      const canvas = document.getElementById("unity-canvas");
-      if (canvas) {
-        canvas.style.height = window.innerHeight + "px";
-        canvas.style.width = window.innerWidth + "px";
-      }
-    }
-
-    window.addEventListener("load", resizeCanvasToWindow);
-    window.addEventListener("resize", resizeCanvasToWindow);
-
-    // Unity instance + Pi authentication logic
     let gameInstance = null;
 
+    // Pi SDK init
+    Pi.init({ version: "2.0" });
+
+    // Pi Auth function (can be called by Unity later)
     function AuthenticateWithPi() {
       const scopes = ['username', 'payments'];
       Pi.authenticate(scopes, function(payment) {
@@ -82,7 +65,7 @@
       });
     }
 
-    // Unity WebGL build config
+    // Unity config
     const buildUrl = "Build";
     const loaderUrl = buildUrl + "/Build.loader.js";
     const config = {
@@ -93,7 +76,7 @@
       companyName: "YourCompany",
       productName: "Pi Game",
       productVersion: "1.0",
-      decompressionFallback: true
+      decompressionFallback: true,
     };
 
     const script = document.createElement("script");
@@ -102,7 +85,6 @@
       createUnityInstance(document.querySelector("#unity-canvas"), config)
         .then((instance) => {
           gameInstance = instance;
-          resizeCanvasToWindow();
         })
         .catch((message) => {
           alert("Unity Load Error: " + message);
