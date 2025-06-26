@@ -72,17 +72,17 @@
 
     const buildUrl = "Build";
     const loaderUrl = buildUrl + "/Build.loader.js";
-    const config = {
-      dataUrl: buildUrl + "/Build.data.unityweb",
-      frameworkUrl: buildUrl + "/Build.framework.js.unityweb",
-      codeUrl: buildUrl + "/Build.wasm.unityweb",
-      streamingAssetsUrl: "StreamingAssets",
-      companyName: "YourCompany",
-      productName: "Pi Game",
-      productVersion: "1.0",
-      devicePixelRatio: 1,
-      decompressionFallback: true,
-    };
+   const config = {
+  dataUrl: buildUrl + "/Build.data",
+  frameworkUrl: buildUrl + "/Build.framework.js",
+  codeUrl: buildUrl + "/Build.wasm",
+  streamingAssetsUrl: "StreamingAssets",
+  companyName: "YourCompany",
+  productName: "Pi Game",
+  productVersion: "1.0",
+  devicePixelRatio: 1,
+  decompressionFallback: false, // also update this
+};
 
     const script = document.createElement("script");
     script.src = loaderUrl;
