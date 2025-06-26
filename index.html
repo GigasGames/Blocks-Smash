@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title>Pi Game</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
   <script>
     Pi.init({ version: "2.0" });
@@ -14,13 +14,39 @@
       padding: 0;
       background: black;
       height: 100%;
+      width: 100%;
       overflow: hidden;
+      touch-action: none;
     }
 
     canvas {
       display: block;
-      width: 100%;
-      height: 100%;
+      width: 100vw;
+      height: 100vh;
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      background-color: black;
+    }
+
+    /* Message for users in landscape mode */
+    @media screen and (orientation: landscape) {
+      body::before {
+        content: "Please rotate your device";
+        color: white;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-family: sans-serif;
+        font-size: 1.5rem;
+        z-index: 1000;
+        text-align: center;
+      }
+
+      #unity-canvas {
+        display: none;
+      }
     }
   </style>
 </head>
@@ -28,45 +54,21 @@
   <canvas id="unity-canvas"></canvas>
 
   <script>
-    let gameInstance = null;
-
-    // ✅ Resize fix for Chrome mobile to avoid browser UI overlap
+    // Resize canvas on load/resize to fix Chrome mobile issues
     function resizeCanvasToWindow() {
       const canvas = document.getElementById("unity-canvas");
-      canvas.style.height = window.innerHeight + "px";
+      if (canvas) {
+        canvas.style.height = window.innerHeight + "px";
+        canvas.style.width = window.innerWidth + "px";
+      }
     }
 
     window.addEventListener("load", resizeCanvasToWindow);
     window.addEventListener("resize", resizeCanvasToWindow);
 
-    // ✅ Unity build loading
-    const buildUrl = "Build";
-    const loaderUrl = buildUrl + "/Build.loader.js";
-    const config = {
-      dataUrl: buildUrl + "/Build.data.unityweb",
-      frameworkUrl: buildUrl + "/Build.framework.js.unityweb",
-      codeUrl: buildUrl + "/Build.wasm.unityweb",
-      streamingAssetsUrl: "StreamingAssets",
-      companyName: "YourCompany",
-      productName: "Pi Game",
-      productVersion: "1.0",
-      decompressionFallback: true,
-    };
+    // Unity instance + Pi authentication logic
+    let gameInstance = null;
 
-    const script = document.createElement("script");
-    script.src = loaderUrl;
-    script.onload = () => {
-      createUnityInstance(document.querySelector("#unity-canvas"), config)
-        .then((instance) => {
-          gameInstance = instance;
-        })
-        .catch((message) => {
-          alert("Unity Load Error: " + message);
-        });
-    };
-    document.body.appendChild(script);
-
-    // ✅ Pi Auth function (called from Unity)
     function AuthenticateWithPi() {
       const scopes = ['username', 'payments'];
       Pi.authenticate(scopes, function(payment) {
@@ -79,6 +81,34 @@
         gameInstance.SendMessage('PiBridge', 'OnAuthFailure', error.toString());
       });
     }
+
+    // Unity WebGL build config
+    const buildUrl = "Build";
+    const loaderUrl = buildUrl + "/Build.loader.js";
+    const config = {
+      dataUrl: buildUrl + "/Build.data.unityweb",
+      frameworkUrl: buildUrl + "/Build.framework.js.unityweb",
+      codeUrl: buildUrl + "/Build.wasm.unityweb",
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: "YourCompany",
+      productName: "Pi Game",
+      productVersion: "1.0",
+      decompressionFallback: true
+    };
+
+    const script = document.createElement("script");
+    script.src = loaderUrl;
+    script.onload = () => {
+      createUnityInstance(document.querySelector("#unity-canvas"), config)
+        .then((instance) => {
+          gameInstance = instance;
+          resizeCanvasToWindow();
+        })
+        .catch((message) => {
+          alert("Unity Load Error: " + message);
+        });
+    };
+    document.body.appendChild(script);
   </script>
 </body>
 </html>
