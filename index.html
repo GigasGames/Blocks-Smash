@@ -1,9 +1,9 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   <title>Pi Game</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0" />
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
   <style>
     html, body {
@@ -13,59 +13,42 @@
       height: 100%;
       overflow: hidden;
     }
-    canvas {
+    #unity-canvas {
+      width: 100vw;
+      height: 100vh;
       display: block;
-      width: 100%;
-      height: 100%;
-    }
-
-    /* Force portrait lock styling */
-    @media screen and (orientation:landscape) {
-      body::before {
-        content: "🔁 Please rotate your device ⤴";
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 2em;
-        color: white;
-        background: black;
-        position: fixed;
-        top: 0; left: 0;
-        width: 100vw;
-        height: 100vh;
-        z-index: 9999;
-        text-align: center;
-        padding: 2rem;
-      }
-      #unity-canvas {
-        display: none !important;
-      }
+      background: #000;
     }
   </style>
 </head>
 <body>
   <canvas id="unity-canvas"></canvas>
+
   <script>
     let gameInstance = null;
 
-    // Pi SDK init
+    // Initialize Pi SDK
     Pi.init({ version: "2.0" });
 
-    // Pi Auth function (can be called by Unity later)
+    // Authentication function
     function AuthenticateWithPi() {
       const scopes = ['username', 'payments'];
       Pi.authenticate(scopes, function(payment) {
-        console.log("Incomplete payment:", payment);
+        console.log("💰 Pending payment:", payment);
       }).then(function(auth) {
-        console.log("✅ Auth success:", auth);
-        gameInstance.SendMessage('PiBridge', 'OnAuthSuccess', JSON.stringify(auth));
+        console.log("✅ Pi Auth Success:", auth);
+        if (gameInstance) {
+          gameInstance.SendMessage('PiBridge', 'OnAuthSuccess', JSON.stringify(auth));
+        }
       }).catch(function(error) {
-        console.error("❌ Auth failed:", error);
-        gameInstance.SendMessage('PiBridge', 'OnAuthFailure', error.toString());
+        console.error("❌ Pi Auth Failed:", error);
+        if (gameInstance) {
+          gameInstance.SendMessage('PiBridge', 'OnAuthFailure', error.toString());
+        }
       });
     }
 
-    // Unity config
+    // Unity loader config
     const buildUrl = "Build";
     const loaderUrl = buildUrl + "/Build.loader.js";
     const config = {
@@ -76,6 +59,7 @@
       companyName: "YourCompany",
       productName: "Pi Game",
       productVersion: "1.0",
+      devicePixelRatio: 1,
       decompressionFallback: true,
     };
 
@@ -83,11 +67,12 @@
     script.src = loaderUrl;
     script.onload = () => {
       createUnityInstance(document.querySelector("#unity-canvas"), config)
-        .then((instance) => {
+        .then(instance => {
           gameInstance = instance;
         })
-        .catch((message) => {
-          alert("Unity Load Error: " + message);
+        .catch(err => {
+          alert("Unity Load Error: " + err);
+          console.error(err);
         });
     };
     document.body.appendChild(script);
