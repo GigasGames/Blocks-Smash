@@ -3,52 +3,26 @@
 <head>
   <meta charset="utf-8" />
   <title>Pi Game</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0" />
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
   <style>
     html, body {
       margin: 0;
       padding: 0;
+      background: black;
       height: 100%;
-      background: black;
       overflow: hidden;
-      touch-action: none;
     }
-
-    body::before {
-      content: "";
-      position: fixed;
-      top: 0; bottom: 0; left: 0; right: 0;
-      background: black;
-      z-index: -1;
-    }
-
-    #unity-container {
-      position: fixed;
-      top: 0;
-      left: 0;
+    #unity-canvas {
       width: 100vw;
       height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      display: block;
       background: black;
-    }
-
-    #unity-canvas {
-      background: black;
-      width: 100vh;
-      height: 100vw;
-      max-height: 100vw;
-      max-width: 100vh;
-      transform-origin: center center;
     }
   </style>
 </head>
 <body>
-  <div id="unity-container">
-    <canvas id="unity-canvas"></canvas>
-  </div>
+  <canvas id="unity-canvas"></canvas>
 
   <script>
     let gameInstance = null;
