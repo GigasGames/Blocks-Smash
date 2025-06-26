@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <title>Pi Game</title>
@@ -13,8 +13,8 @@
       margin: 0;
       padding: 0;
       background: black;
-      overflow: hidden;
       height: 100%;
+      overflow: hidden;
     }
 
     canvas {
@@ -28,7 +28,9 @@
   <canvas id="unity-canvas"></canvas>
 
   <script>
-    // Resize canvas properly on mobile Chrome (fix for UI bars hiding content)
+    let gameInstance = null;
+
+    // ✅ Resize fix for Chrome mobile to avoid browser UI overlap
     function resizeCanvasToWindow() {
       const canvas = document.getElementById("unity-canvas");
       canvas.style.height = window.innerHeight + "px";
@@ -37,10 +39,36 @@
     window.addEventListener("load", resizeCanvasToWindow);
     window.addEventListener("resize", resizeCanvasToWindow);
 
-    // Define JS functions to call from Unity
+    // ✅ Unity build loading
+    const buildUrl = "Build";
+    const loaderUrl = buildUrl + "/Build.loader.js";
+    const config = {
+      dataUrl: buildUrl + "/Build.data.unityweb",
+      frameworkUrl: buildUrl + "/Build.framework.js.unityweb",
+      codeUrl: buildUrl + "/Build.wasm.unityweb",
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: "YourCompany",
+      productName: "Pi Game",
+      productVersion: "1.0",
+      decompressionFallback: true,
+    };
+
+    const script = document.createElement("script");
+    script.src = loaderUrl;
+    script.onload = () => {
+      createUnityInstance(document.querySelector("#unity-canvas"), config)
+        .then((instance) => {
+          gameInstance = instance;
+        })
+        .catch((message) => {
+          alert("Unity Load Error: " + message);
+        });
+    };
+    document.body.appendChild(script);
+
+    // ✅ Pi Auth function (called from Unity)
     function AuthenticateWithPi() {
       const scopes = ['username', 'payments'];
-
       Pi.authenticate(scopes, function(payment) {
         console.log("Incomplete payment:", payment);
       }).then(function(auth) {
