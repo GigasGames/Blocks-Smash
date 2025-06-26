@@ -1,40 +1,25 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8">
   <title>Pi Game</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+  <script>
+    Pi.init({ version: "2.0" });
+  </script>
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      background: black;
-      overflow: hidden;
-      height: 100%;
-    }
-    canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-      outline: none;
-      cursor: default;
-    }
+    body { margin: 0; background: black; overflow: hidden; }
+    canvas { width: 100%; height: 100%; display: block; }
   </style>
 </head>
 <body>
-  <canvas id="unity-canvas" tabindex="1"></canvas>
-
+  <canvas id="unity-canvas"></canvas>
   <script>
-    // Init Pi SDK
-    Pi.init({ version: "2.0" });
-
-    // Unity instance
-    let gameInstance = null;
-
-    // Authenticate function (optional)
+    // Define JS functions to call from Unity
     function AuthenticateWithPi() {
       const scopes = ['username', 'payments'];
+
       Pi.authenticate(scopes, function(payment) {
         console.log("Incomplete payment:", payment);
       }).then(function(auth) {
@@ -45,31 +30,6 @@
         gameInstance.SendMessage('PiBridge', 'OnAuthFailure', error.toString());
       });
     }
-
-    // Load Unity
-    const loaderUrl = "Build/Build.loader.js";
-    const config = {
-      dataUrl: "Build/Build.data.br",
-      frameworkUrl: "Build/Build.framework.js.br",
-      codeUrl: "Build/Build.wasm.br",
-      streamingAssetsUrl: "StreamingAssets",
-      companyName: "YourCompany",
-      productName: "Pi Game",
-      productVersion: "1.0"
-    };
-
-    const script = document.createElement("script");
-    script.src = loaderUrl;
-    script.onload = () => {
-      createUnityInstance(document.querySelector("#unity-canvas"), config)
-        .then((instance) => {
-          gameInstance = instance;
-        })
-        .catch((message) => {
-          alert(message);
-        });
-    };
-    document.body.appendChild(script);
   </script>
 </body>
 </html>
