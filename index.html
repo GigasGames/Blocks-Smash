@@ -15,10 +15,10 @@
     }
 
     #unity-canvas {
+      width: 100vw;
+      height: 100vh;
       display: block;
       background: black;
-      width: 100vw;
-      height: 100vh; /* fallback */
     }
   </style>
 </head>
@@ -28,10 +28,8 @@
   <script>
     let gameInstance = null;
 
-    // Pi SDK init
     Pi.init({ version: "2.0" });
 
-    // Pi Auth
     function AuthenticateWithPi() {
       const scopes = ['username', 'payments'];
       Pi.authenticate(scopes, function (payment) {
@@ -49,17 +47,17 @@
       });
     }
 
-    // 🧠 Fix 100vh bug on mobile Chrome
-    function resizeCanvasToSafeHeight() {
+    // Handle Chrome mobile viewport resize issues
+    function fixViewport() {
       const canvas = document.getElementById('unity-canvas');
       canvas.style.height = window.innerHeight + 'px';
     }
 
-    window.addEventListener('load', resizeCanvasToSafeHeight);
-    window.addEventListener('resize', resizeCanvasToSafeHeight);
-    window.addEventListener('orientationchange', resizeCanvasToSafeHeight);
+    window.addEventListener('load', fixViewport);
+    window.addEventListener('resize', fixViewport);
+    window.addEventListener('orientationchange', fixViewport);
 
-    // Load Unity
+    // Unity load
     const buildUrl = "Build";
     const loaderUrl = buildUrl + "/Build.loader.js";
     const config = {
@@ -71,7 +69,7 @@
       productName: "Pi Game",
       productVersion: "1.0",
       devicePixelRatio: 1,
-      decompressionFallback: true,
+      decompressionFallback: true
     };
 
     const script = document.createElement("script");
@@ -82,7 +80,7 @@
           gameInstance = instance;
         })
         .catch(err => {
-          alert("Unity Load Error: " + err);
+          alert("Unity Load Error:\n\n" + err);
           console.error(err);
         });
     };
