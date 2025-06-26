@@ -1,36 +1,25 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="utf-8">
   <title>Pi Game</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+  <script>
+    Pi.init({ version: "2.0" });
+  </script>
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      background: black;
-      height: 100%;
-      overflow: hidden;
-    }
-    canvas {
-      display: block;
-      width: 100%;
-      height: 100%;
-    }
+    body { margin: 0; background: black; overflow: hidden; }
+    canvas { width: 100%; height: 100%; display: block; }
   </style>
 </head>
 <body>
   <canvas id="unity-canvas"></canvas>
   <script>
-    let gameInstance = null;
-
-    // Pi SDK init
-    Pi.init({ version: "2.0" });
-
-    // Pi Auth function (can be called by Unity later)
+    // Define JS functions to call from Unity
     function AuthenticateWithPi() {
       const scopes = ['username', 'payments'];
+
       Pi.authenticate(scopes, function(payment) {
         console.log("Incomplete payment:", payment);
       }).then(function(auth) {
@@ -41,33 +30,6 @@
         gameInstance.SendMessage('PiBridge', 'OnAuthFailure', error.toString());
       });
     }
-
-    // Unity config
-const buildUrl = "Build";
-const loaderUrl = buildUrl + "/Build.loader.js";
-const config = {
-  dataUrl: buildUrl + "/Build.data.unityweb",
-  frameworkUrl: buildUrl + "/Build.framework.js.unityweb",
-  codeUrl: buildUrl + "/Build.wasm.unityweb",
-      streamingAssetsUrl: "StreamingAssets",
-      companyName: "YourCompany",
-      productName: "Pi Game",
-      productVersion: "1.0",
-      decompressionFallback: true,
-    };
-
-    const script = document.createElement("script");
-    script.src = loaderUrl;
-    script.onload = () => {
-      createUnityInstance(document.querySelector("#unity-canvas"), config)
-        .then((instance) => {
-          gameInstance = instance;
-        })
-        .catch((message) => {
-          alert("Unity Load Error: " + message);
-        });
-    };
-    document.body.appendChild(script);
   </script>
 </body>
 </html>
