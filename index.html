@@ -4,13 +4,7 @@
   <meta charset="utf-8">
   <title>Pi Game</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Pi Network SDK -->
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-  <script>
-    Pi.init({ version: "2.0" });
-  </script>
-
   <style>
     html, body {
       margin: 0;
@@ -30,51 +24,47 @@
   <canvas id="unity-canvas"></canvas>
 
   <script>
+    Pi.init({ version: "2.0" });
+
     let gameInstance = null;
 
-    // Called by Unity to trigger authentication
     function AuthenticateWithPi() {
       const scopes = ['username', 'payments'];
-
       Pi.authenticate(scopes, function(payment) {
-        console.log("🔁 Incomplete payment:", payment);
+        console.log("Incomplete payment:", payment);
       }).then(function(auth) {
         console.log("✅ Auth success:", auth);
-        if (gameInstance) {
-          gameInstance.SendMessage('PiBridge', 'OnAuthSuccess', JSON.stringify(auth));
-        }
+        gameInstance.SendMessage('PiBridge', 'OnAuthSuccess', JSON.stringify(auth));
       }).catch(function(error) {
         console.error("❌ Auth failed:", error);
-        if (gameInstance) {
-          gameInstance.SendMessage('PiBridge', 'OnAuthFailure', error.toString());
-        }
+        gameInstance.SendMessage('PiBridge', 'OnAuthFailure', error.toString());
       });
     }
 
-    // Unity loader
-    const buildUrl = "Build";
+    const buildUrl = "Build/";
+    const loaderUrl = buildUrl + "Build.loader.js";
     const config = {
-      dataUrl: buildUrl + "/Build.data.br",
-      frameworkUrl: buildUrl + "/Build.framework.js.br",
-      codeUrl: buildUrl + "/Build.wasm.br",
+      dataUrl: buildUrl + "Build.data.br",
+      frameworkUrl: buildUrl + "Build.framework.js.br",
+      codeUrl: buildUrl + "Build.wasm.br",
       streamingAssetsUrl: "StreamingAssets",
       companyName: "YourCompany",
       productName: "Pi Game",
       productVersion: "1.0"
     };
 
-    const loaderScript = document.createElement("script");
-    loaderScript.src = buildUrl + "/Build.loader.js";
-    loaderScript.onload = () => {
-      createUnityInstance(document.querySelector("#unity-canvas"), config, (progress) => {
-        console.log(`Loading... ${Math.round(progress * 100)}%`);
-      }).then((instance) => {
-        gameInstance = instance;
-      }).catch((message) => {
-        console.error("❌ Unity load failed:", message);
-      });
+    const script = document.createElement("script");
+    script.src = loaderUrl;
+    script.onload = () => {
+      createUnityInstance(document.querySelector("#unity-canvas"), config)
+        .then((instance) => {
+          gameInstance = instance;
+        })
+        .catch((message) => {
+          alert(message);
+        });
     };
-    document.body.appendChild(loaderScript);
+    document.body.appendChild(script);
   </script>
 </body>
 </html>
